@@ -164,6 +164,7 @@ const styles = StyleSheet.create({
   input: {
     height: 50,
     padding: 16,
+    marginBottom: 16,
     borderWidth: 1,
     borderRadius: 8,
     backgroundColor: "#F6F6F6",
@@ -176,7 +177,7 @@ const styles = StyleSheet.create({
   show: {
     position: "absolute",
     right: 16,
-    top: "30%",
+    top: "25%",
     fontSize: 16,
     lineHeight: 19,
     color: "#1B4371",
@@ -187,6 +188,7 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     padding: 16,
     marginTop: 27,
+    marginBottom: 16,
   },
   submitText: {
     fontSize: 16,

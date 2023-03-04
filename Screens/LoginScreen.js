@@ -24,6 +24,11 @@ export const LoginScreen = () => {
   const [showPass, setShowPass] = useState(false);
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
   const [formData, setFormData] = useState(initialState);
+  const [isFocused, setIsFocused] = useState({
+    email: false,
+    password: false,
+  });
+
   const [fontsLoaded] = useFonts({
     "Roboto-Regular": require("../assets/fonts/Roboto-Regular.ttf"),
     "Roboto-Medium": require("../assets/fonts/Roboto-Medium.ttf"),
@@ -56,23 +61,53 @@ export const LoginScreen = () => {
           <Text style={styles.title}>Login</Text>
           <View style={styles.form}>
             <TextInput
-              style={styles.input}
+              style={{
+                ...styles.input,
+                borderColor: isFocused.email ? "#FF6C00" : "#E8E8E8",
+              }}
               placeholder={"Email"}
               value={formData.email}
-              onFocus={() => setIsShowKeyboard(true)}
-              onBlur={() => setIsShowKeyboard(false)}
+              onFocus={() => {
+                setIsShowKeyboard(true);
+                setIsFocused((prev) => ({
+                  ...prev,
+                  email: true,
+                }));
+              }}
+              onBlur={() => {
+                setIsShowKeyboard(false);
+                setIsFocused((prev) => ({
+                  ...prev,
+                  email: false,
+                }));
+              }}
               onChangeText={(value) =>
                 setFormData((prev) => ({ ...prev, email: value }))
               }
             />
             <View style={styles.passwordWrap}>
               <TextInput
-                style={styles.input}
+                style={{
+                  ...styles.input,
+                  borderColor: isFocused.password ? "#FF6C00" : "#E8E8E8",
+                }}
                 placeholder={"Password"}
                 value={formData.password}
                 secureTextEntry={!showPass}
-                onFocus={() => setIsShowKeyboard(true)}
-                onBlur={() => setIsShowKeyboard(false)}
+                onFocus={() => {
+                  setIsShowKeyboard(true);
+                  setIsFocused((prev) => ({
+                    ...prev,
+                    password: true,
+                  }));
+                }}
+                onBlur={() => {
+                  setIsShowKeyboard(false);
+                  setIsFocused((prev) => ({
+                    ...prev,
+                    password: false,
+                  }));
+                }}
                 onChangeText={(value) =>
                   setFormData((prev) => ({ ...prev, password: value }))
                 }
@@ -130,7 +165,6 @@ const styles = StyleSheet.create({
     height: 50,
     padding: 16,
     borderWidth: 1,
-    borderColor: "#E8E8E8",
     borderRadius: 8,
     backgroundColor: "#F6F6F6",
     fontFamily: "Roboto-Regular",

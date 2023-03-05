@@ -1,37 +1,34 @@
-import {
-  StyleSheet,
-  View,
-  ImageBackground,
-  TouchableWithoutFeedback,
-  Keyboard,
-} from "react-native";
-import { LoginScreen } from "./Screens/LoginScreen";
-import { RegistrationScreen } from "./Screens/RegistrationScreen";
+import { NavigationContainer } from "@react-navigation/native";
+import { useRoute } from "./router";
+import * as Font from "expo-font";
+import * as SplashScreen from "expo-splash-screen";
+import { useEffect, useState } from "react";
 
 export default function App() {
-  return (
-    <View style={styles.container}>
-      <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-        <ImageBackground
-          style={styles.image}
-          source={require("./assets/img/background.webp")}
-        >
-          {/* <RegistrationScreen /> */}
-          <LoginScreen />
-        </ImageBackground>
-      </TouchableWithoutFeedback>
-    </View>
-  );
-}
+  const [isReady, setIsReady] = useState(false);
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
-  image: {
-    flex: 1,
-    resizeMode: "cover",
-    justifyContent: "flex-end",
-  },
-});
+  useEffect(() => {
+    async function loadFonts() {
+      try {
+        await Font.loadAsync({
+          "Roboto-Regular": require("./assets/fonts/Roboto-Regular.ttf"),
+          "Roboto-Medium": require("./assets/fonts/Roboto-Medium.ttf"),
+        });
+        SplashScreen.hideAsync();
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setIsReady(true);
+        SplashScreen.hideAsync();
+      }
+    }
+    loadFonts();
+  }, []);
+
+  if (!isReady) {
+    return null;
+  }
+
+  const routing = useRoute(true);
+  return <NavigationContainer>{routing}</NavigationContainer>;
+}

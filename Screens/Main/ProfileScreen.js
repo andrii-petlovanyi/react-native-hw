@@ -1,15 +1,36 @@
-import React from "react";
-import { StyleSheet, View } from "react-native";
+import { createStackNavigator } from "@react-navigation/stack";
+import { CommentsScreenNested } from "../Nested/CommentsScreenNested";
+import { MapScreenNested } from "../Nested/MapScreenNested";
+import { ProfileScreenNested } from "../Nested/ProfileScreenNested";
+
+const NestedScreen = createStackNavigator();
 
 export const ProfileScreen = () => {
-  return <View style={styles.container}></View>;
+  return (
+    <NestedScreen.Navigator initialRouteName="DefaultProfile">
+      <NestedScreen.Screen
+        name="DefaultProfile"
+        component={ProfileScreenNested}
+        options={{ headerShown: false }}
+      />
+      <NestedScreen.Screen
+        name="ProfileMap"
+        component={MapScreenNested}
+        options={{
+          headerTitle: "Map",
+          headerTitleAlign: "center",
+          headerLeftLabelVisible: false,
+        }}
+      />
+      <NestedScreen.Screen
+        name="ProfileComments"
+        component={CommentsScreenNested}
+        options={{
+          headerTitle: "Comments",
+          headerTitleAlign: "center",
+          headerLeftLabelVisible: false,
+        }}
+      />
+    </NestedScreen.Navigator>
+  );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingVertical: 32,
-    paddingHorizontal: 16,
-  },
-  profile: {},
-});

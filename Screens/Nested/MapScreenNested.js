@@ -1,7 +1,7 @@
 import React from "react";
 import { StyleSheet, View } from "react-native";
 
-export const CommentsScreen = () => {
+export const MapScreenNested = () => {
   return <View style={styles.container}></View>;
 };
 

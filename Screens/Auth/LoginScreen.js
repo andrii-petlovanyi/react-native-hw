@@ -19,6 +19,8 @@ const initialState = {
   password: "",
 };
 
+const image = require("../../assets/img/background.webp");
+
 export const LoginScreen = ({ navigation }) => {
   const [showPass, setShowPass] = useState(false);
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
@@ -35,10 +37,7 @@ export const LoginScreen = ({ navigation }) => {
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-      <ImageBackground
-        style={styles.image}
-        source={require("../../assets/img/background.webp")}
-      >
+      <ImageBackground style={styles.image} source={image}>
         <KeyboardAvoidingView
           behavior={Platform.OS == "ios" ? "padding" : "height"}
         >

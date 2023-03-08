@@ -14,6 +14,8 @@ import {
   View,
 } from "react-native";
 
+const image = require("../../../assets/img/background.webp");
+
 const initialState = {
   login: "",
   email: "",
@@ -37,10 +39,7 @@ export const RegistrationScreen = ({ navigation }) => {
 
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-      <ImageBackground
-        style={styles.image}
-        source={require("../../assets/img/background.webp")}
-      >
+      <ImageBackground style={styles.image} source={image}>
         <KeyboardAvoidingView
           behavior={Platform.OS == "ios" ? "padding" : "height"}
         >

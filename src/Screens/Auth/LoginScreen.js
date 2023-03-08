@@ -19,7 +19,7 @@ const initialState = {
   password: "",
 };
 
-const image = require("../../assets/img/background.webp");
+const image = require("../../../assets/img/background.webp");
 
 export const LoginScreen = ({ navigation }) => {
   const [showPass, setShowPass] = useState(false);

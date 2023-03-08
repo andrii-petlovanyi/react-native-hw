@@ -11,7 +11,7 @@ import { AntDesign } from "@expo/vector-icons";
 import { MaterialIcons } from "@expo/vector-icons";
 import { ProfilePostCard } from "../../components/ProfilePostCard";
 
-const image = require("../../assets/img/background.webp");
+const image = require("../../../assets/img/background.webp");
 
 export const ProfileScreenNested = ({ navigation }) => {
   return (

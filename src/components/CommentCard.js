@@ -1,29 +1,29 @@
-import { StyleSheet, Text, View } from "react-native";
+import { useSelector } from "react-redux";
+import { Image, StyleSheet, Text, View } from "react-native";
 
-export const CommentCard = () => {
+export const CommentCard = ({ avatar, comment, nickname, date }) => {
+  const username = useSelector((state) => state.auth.nickname);
+
   return (
     <View style={styles.container}>
       <View
         style={{
-          flexDirection: "row",
+          flexDirection: username === nickname ? "row-reverse" : "row",
           marginBottom: 24,
         }}
       >
-        {/* <Image source={} style={styles.avatar} /> */}
-        <View style={styles.comment}>
-          <Text style={styles.text}>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Quo facilis
-            ipsum est, magnam facere nemo impedit officia nostrum. Dolorem saepe
-            eligendi corrupti veniam possimus eius deserunt quidem ut cumque
-            blanditiis.
-          </Text>
+        <Image source={{ uri: avatar }} style={styles.avatar} />
+        <View
+          style={username === nickname ? styles.userComment : styles.comment}
+        >
+          <Text style={styles.text}>{comment}</Text>
           <Text
             style={{
               ...styles.date,
-              textAlign: "right",
+              textAlign: username === nickname ? "left" : "right",
             }}
           >
-            01.12.1992
+            {date}
           </Text>
         </View>
       </View>

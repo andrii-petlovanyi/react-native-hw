@@ -1,20 +1,65 @@
-import React from "react";
-import { View, StyleSheet, Text } from "react-native";
+import { useEffect, useState } from "react";
+import { db } from "../../firebase/config";
+import { collection, query, onSnapshot, orderBy } from "firebase/firestore";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  FlatList,
+  SafeAreaView,
+} from "react-native";
+import { useSelector } from "react-redux";
+
 import { PostCard } from "../../components/PostCard";
 
 export const PostsScreenNested = ({ navigation }) => {
+  const [posts, setPosts] = useState([]);
+
+  const { nickname, email, avatar } = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    const q = query(collection(db, "posts"), orderBy("date", "desc"));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const allPosts = [];
+      querySnapshot.forEach((doc) => {
+        allPosts.push({ ...doc.data(), id: doc.id });
+      });
+      setPosts(allPosts);
+    });
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
   return (
     <View style={styles.container}>
       <View style={styles.avatarContainer}>
-        <View style={styles.avatar}>
-          {/* <Image source={} style={styles.avatar} /> */}
+        <View>
+          <Image source={{ uri: avatar }} style={styles.avatar} />
         </View>
         <View style={styles.userInfo}>
-          <Text style={styles.username}>Andrii Petlovanyi</Text>
-          <Text style={styles.userEmail}>pam@gmail.com</Text>
+          <Text style={styles.username}>{nickname}</Text>
+          <Text style={styles.userEmail}>{email}</Text>
         </View>
       </View>
-      <PostCard navigation={navigation} />
+      <SafeAreaView style={{ flex: 1 }}>
+        <FlatList
+          data={posts}
+          renderItem={({ item }) => (
+            <PostCard
+              photo={item.photo}
+              title={item.title}
+              location={item.location}
+              navigation={navigation}
+              coords={item.coords}
+              postId={item.id}
+              likes={item.like}
+            />
+          )}
+          keyExtractor={(item) => item.id}
+        />
+      </SafeAreaView>
     </View>
   );
 };
@@ -22,9 +67,8 @@ export const PostsScreenNested = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingVertical: 32,
+    backgroundColor: "#fff",
     paddingHorizontal: 16,
-    backgroundColor: "white",
   },
   avatarContainer: {
     flexDirection: "row",
@@ -36,7 +80,6 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 16,
-    backgroundColor: "gray",
   },
   userInfo: {
     marginLeft: 8,

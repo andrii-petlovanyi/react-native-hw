@@ -13,6 +13,9 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useDispatch } from "react-redux";
+import { authSignInUser } from "../../redux/auth/operations";
+import { Toast } from "react-native-toast-message/lib/src/Toast";
 
 const initialState = {
   email: "",
@@ -30,8 +33,15 @@ export const LoginScreen = ({ navigation }) => {
     password: false,
   });
 
+  const dispatch = useDispatch();
+
   const formSubmit = () => {
-    console.log(formData);
+    const { email, password } = formData;
+
+    if (email === "" || password === "") {
+      return Toast.show({ type: "error", text1: "Please set all fields" });
+    }
+    dispatch(authSignInUser({ email, password }));
     setFormData(initialState);
   };
 

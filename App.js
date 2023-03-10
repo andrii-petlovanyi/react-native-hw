@@ -1,8 +1,13 @@
-import { NavigationContainer } from "@react-navigation/native";
-import { useRoute } from "./router";
+
 import * as Font from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
+import { store } from "./src/redux/store";
+import { Provider } from "react-redux";
+import { Toast } from "react-native-toast-message/lib/src/Toast";
+import { Home } from "./src/Screens/Main/Home";
+
+SplashScreen.preventAutoHideAsync();
 
 export default function App() {
   const [isReady, setIsReady] = useState(false);
@@ -29,6 +34,10 @@ export default function App() {
     return null;
   }
 
-  const routing = useRoute(true);
-  return <NavigationContainer>{routing}</NavigationContainer>;
+  return (
+    <Provider store={store}>
+      <Home />
+      <Toast />
+    </Provider>
+  );
 }

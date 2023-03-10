@@ -1,34 +1,42 @@
-import React, { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
+import { Camera, CameraType } from "expo-camera";
+import * as Location from "expo-location";
+import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
+import { storage, db } from "../../firebase/config";
+import { collection, addDoc } from "firebase/firestore";
 import {
-  Button,
-  Image,
-  Keyboard,
-  StyleSheet,
+  View,
   Text,
+  StyleSheet,
   TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  View,
+  Platform,
+  Keyboard,
+  Button,
+  Image,
+  KeyboardAvoidingView,
 } from "react-native";
-import KeyboardAvoidingView from "react-native/Libraries/Components/Keyboard/KeyboardAvoidingView";
-import * as Location from "expo-location";
 import * as ImagePicker from "expo-image-picker";
-import { Camera, CameraType } from "expo-camera";
+import Toast from "react-native-toast-message";
 
 import { FontAwesome } from "@expo/vector-icons";
 import { Feather } from "@expo/vector-icons";
 import { MaterialIcons } from "@expo/vector-icons";
 
-export const CreatePostsScreen = () => {
-  const [isKeyboardShown, setIsKeyboardShown] = useState(false);
+export const CreatePostsScreen = ({ navigation }) => {
   const [type, setType] = useState(CameraType.back);
   const [permission, requestPermission] = Camera.useCameraPermissions();
   const [cameraRef, setCameraRef] = useState(null);
   const [photo, setPhoto] = useState(null);
   const [title, setTitle] = useState("");
   const [location, setLocation] = useState(null);
+  const [isKeyboardShown, setIsKeyboardShown] = useState(false);
   const [coords, setCoords] = useState(null);
   const [country, setCountry] = useState(null);
+
+  const { userId, nickname } = useSelector((state) => state.auth);
 
   useEffect(() => {
     (async () => {
@@ -106,6 +114,7 @@ export const CreatePostsScreen = () => {
   const takePhoto = async () => {
     try {
       const photo = await cameraRef.takePictureAsync();
+      console.log(photo);
       setPhoto(photo.uri);
       getAddress();
     } catch (error) {
@@ -118,7 +127,71 @@ export const CreatePostsScreen = () => {
     setLocation("");
   };
 
-  const onSubmit = () => {};
+  const uploadPhoto = async () => {
+    try {
+      const response = await fetch(photo);
+      // console.log("response:", response);
+      const file = await response.blob();
+
+      const uniquePostId = Date.now().toString();
+
+      const storageRef = await ref(storage, `postsImages/${uniquePostId}`);
+      console.log("storageRef", storageRef);
+
+      await uploadBytes(storageRef, file).then((photo) =>
+        console.log("Uploaded a blob photo", photo)
+      );
+
+      const downloadedPhoto = await getDownloadURL(storageRef)
+        .then((data) => data)
+        .catch((error) => {
+          console.log(error);
+        });
+
+      console.log("downloadedPhoto:", downloadedPhoto);
+
+      return downloadedPhoto;
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const uploadPost = async () => {
+    try {
+      const photo = await uploadPhoto();
+      if (!photo) {
+        console.log("No photo to upload");
+        return;
+      }
+      await addDoc(collection(db, "posts"), {
+        userId,
+        nickname,
+        photo,
+        title,
+        location,
+        coords: coords.coords,
+        date: Date.now().toString(),
+        country,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const onSubmit = () => {
+    if (!photo || location === "") {
+      Toast.show({
+        type: "error",
+        text1: "There are must be photo and title",
+      });
+      return;
+    }
+    uploadPost();
+    navigation.navigate("DefaultScreen");
+    resetPhotoState();
+    setTitle("");
+    setLocation("");
+  };
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>

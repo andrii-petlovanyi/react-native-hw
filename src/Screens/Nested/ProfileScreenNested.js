@@ -1,39 +1,111 @@
-import React from "react";
+import { authSingOutUser } from "../../redux/auth/operations";
+import { useDispatch } from "react-redux";
+import * as ImagePicker from "expo-image-picker";
+import { useState, useEffect } from "react";
+import { db } from "../../firebase/config";
+import { collection, query, onSnapshot, where } from "firebase/firestore";
+import { useSelector } from "react-redux";
 import {
-  ImageBackground,
-  Pressable,
-  StyleSheet,
-  Text,
   View,
+  Text,
+  StyleSheet,
+  ImageBackground,
+  Image,
+  Pressable,
+  FlatList,
+  SafeAreaView,
 } from "react-native";
+import { ProfilePostCard } from "../../components/ProfilePostCard";
 
 import { AntDesign } from "@expo/vector-icons";
 import { MaterialIcons } from "@expo/vector-icons";
-import { ProfilePostCard } from "../../components/ProfilePostCard";
 
-const image = require("../../../assets/img/background.webp");
+const imageBg = require("../../../assets/img/background.webp");
 
 export const ProfileScreenNested = ({ navigation }) => {
+  const [photo, setPhoto] = useState(null);
+  const [posts, setPosts] = useState([]);
+
+  const { nickname, avatar, userId } = useSelector((state) => state.auth);
+
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    setPhoto(avatar);
+    const q = query(collection(db, "posts"), where("userId", "==", userId));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const allPosts = [];
+      querySnapshot.forEach((doc) => {
+        allPosts.push({ ...doc.data(), id: doc.id });
+      });
+      setPosts(allPosts);
+    });
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setPhoto(result.assets[0].uri);
+    }
+  };
+
   return (
     <View style={styles.container}>
-      <ImageBackground source={image} style={styles.imageBg}>
+      <ImageBackground source={imageBg} style={styles.imageBg}>
         <View style={styles.profileContainer}>
           <View style={styles.avatar}>
-            {/* <Image source={} style={styles.avatarImg} /> */}
-
-            <Pressable>
-              <View style={styles.addAvatarIcon}>
-                <AntDesign name="pluscircleo" size={25} color="#FF6C00" />
-              </View>
-            </Pressable>
+            <Image source={{ uri: photo }} style={styles.avatarImg} />
+            {photo ? (
+              <Pressable
+                onPress={() => {
+                  setPhoto(null);
+                }}
+              >
+                <View style={styles.removeAvatarIcon}>
+                  <AntDesign name="closecircleo" size={25} color="#E8E8E8" />
+                </View>
+              </Pressable>
+            ) : (
+              <Pressable onPress={pickImage}>
+                <View style={styles.addAvatarIcon}>
+                  <AntDesign name="pluscircleo" size={25} color="#FF6C00" />
+                </View>
+              </Pressable>
+            )}
           </View>
-          <Pressable style={styles.logoutIcon}>
+          <Pressable
+            style={styles.logoutIcon}
+            onPress={() => dispatch(authSingOutUser())}
+          >
             <MaterialIcons name="logout" size={24} color="#BDBDBD" />
           </Pressable>
-          <Text style={styles.username}>Andrii</Text>
-          <View style={styles.postWrap}>
-            <ProfilePostCard navigation={navigation} />
-          </View>
+          <Text style={styles.username}>{nickname}</Text>
+          <SafeAreaView style={{ flex: 1, width: "100%", marginTop: 32 }}>
+            <FlatList
+              data={posts}
+              renderItem={({ item }) => (
+                <ProfilePostCard
+                  photo={item.photo}
+                  title={item.title}
+                  location={item.location}
+                  navigation={navigation}
+                  coords={item.coords}
+                  postId={item.id}
+                  likes={item.like}
+                />
+              )}
+              keyExtractor={(item) => item.id}
+            />
+          </SafeAreaView>
         </View>
       </ImageBackground>
     </View>
@@ -79,6 +151,13 @@ const styles = StyleSheet.create({
     right: -13,
     bottom: 14,
   },
+  removeAvatarIcon: {
+    position: "absolute",
+    right: -13,
+    bottom: 14,
+    backgroundColor: "#fff",
+    borderRadius: 50,
+  },
   logoutIcon: {
     position: "absolute",
     right: 16,
@@ -89,8 +168,5 @@ const styles = StyleSheet.create({
     fontFamily: "Roboto-Medium",
     fontSize: 30,
     color: "#212121",
-  },
-  postWrap: {
-    marginTop: 30,
   },
 });

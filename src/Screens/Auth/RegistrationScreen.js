@@ -1,4 +1,5 @@
 import * as ImagePicker from "expo-image-picker";
+import * as Permissions from "expo-permissions";
 import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { authSignUpUser } from "../../redux/auth/operations";
@@ -83,6 +84,11 @@ export const RegistrationScreen = ({ navigation }) => {
   };
 
   const pickImage = async () => {
+    const { status } = await Permissions.askAsync(Permissions.MEDIA_LIBRARY);
+    if (status !== "granted") {
+      return console.log("Permission not granted");
+    }
+
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsEditing: true,
@@ -90,7 +96,7 @@ export const RegistrationScreen = ({ navigation }) => {
       quality: 1,
     });
 
-    if (!result.canceled) {
+    if (!result.cancelled) {
       setAvatar(result.assets[0].uri);
       console.log(avatar);
     }

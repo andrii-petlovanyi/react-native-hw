@@ -9,12 +9,12 @@ import {
 
 export const authSignUpUser = createAsyncThunk(
   "auth/signUpUser",
-  async ({ email, password, login, avatar }, thunkApi) => {
+  async (data, thunkApi) => {
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      await createUserWithEmailAndPassword(auth, data.email, data.password);
       await updateProfile(auth.currentUser, {
-        displayName: login,
-        photoURL: avatar,
+        displayName: data.login,
+        photoURL: data.avatar,
       });
       const { uid, displayName, email, photoURL } = auth.currentUser;
       return { uid, displayName, email, photoURL };
